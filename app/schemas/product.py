@@ -6,6 +6,6 @@ class UserSchema(BaseModel):
     email: str
     password: str
 
-class UserLoginRequest(BaseModel):
-    email: str
-    password: str
+class ProductNotFoundSchema(BaseModel):
+    status: int = 404
+    detail: str
