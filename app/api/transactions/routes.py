@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.databases import get_db
-from app.services.transaction import get_transaction, get_transaction_by_id, get_transaction_detail_by_id_transaction
-from app.schemas.transaction import TransactionSchema, TransactionAndDetailSchema
+from app.services.transaction import get_transaction, get_transaction_by_id, get_transaction_detail_by_id_transaction, create_transaction_data, create_transaction_detail
+from app.schemas.transaction import TransactionSchema, TransactionAndDetailSchema, TransactionNewRecordSchema
 
 router = APIRouter()
 
@@ -22,3 +22,9 @@ async def read_transaction(transaction_id: int, db: Session = Depends(get_db)) -
         "transaction_info": transaction,
         "transaction_details": transaction_detail_list
     }
+
+@router.post("/transactions")
+async def create_transaction(transaction: TransactionNewRecordSchema, db: Session = Depends(get_db)):
+    new_transaction = create_transaction_data(db, 1)
+    transaction_detail = create_transaction_detail(db, transaction.transaction_details, new_transaction.transaction_id)
+    return {"success": True}

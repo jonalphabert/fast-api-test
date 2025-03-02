@@ -15,6 +15,14 @@ class TransactionDetailSchema(BaseModel):
     transaction_detail_subtotal     : float
     transaction_product_name        : str
 
+class TransactionDetailRequestSchema(BaseModel):
+    product      : int
+    quantity     : int
+    price        : float
+    
 class TransactionAndDetailSchema(BaseModel):
     transaction_info                : TransactionSchema
     transaction_details             : list[TransactionDetailSchema]
+
+class TransactionNewRecordSchema(BaseModel):
+    transaction_details             : list[TransactionDetailRequestSchema]

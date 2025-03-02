@@ -1,6 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.schemas.transaction import TransactionSchema, TransactionDetailSchema
+from app.models import Transaction, TransactionDetail
 
 def get_transaction(db: Session):
     sql = text("""
@@ -90,3 +91,34 @@ def get_transaction_detail_by_id_transaction(db: Session, transaction_id: int):
         return transaction_details_dict
         
     return None  # Return None if no transactions is found
+
+
+def create_transaction_data(db: Session, user: int):
+    db_transaction = Transaction(
+        transaction_operator=user
+    )
+    db.add(db_transaction)
+    db.commit()
+    db.refresh(db_transaction)
+    return db_transaction
+
+def create_transaction_detail(db: Session, transaction_details: list, id_transaction: int):
+    db_transaction_detail = []
+    for transaction_detail in transaction_details:
+        # Create a new TransactionDetail object
+        new_transaction_detail = TransactionDetail(
+            transaction_detail_transaction=id_transaction,
+            transaction_detail_product=transaction_detail.product,
+            transaction_detail_quantity=transaction_detail.quantity,
+            transaction_detail_price=transaction_detail.price,
+            transaction_detail_subtotal=transaction_detail.quantity * transaction_detail.price
+        )
+        # Append the new object to the list
+        db_transaction_detail.append(new_transaction_detail)
+
+    # Add all objects to the session
+    db.add_all(db_transaction_detail)
+    db.commit()
+
+    # Return the list of created TransactionDetail objects
+    return db_transaction_detail
