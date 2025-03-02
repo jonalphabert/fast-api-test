@@ -8,7 +8,3 @@ router = APIRouter()
 router.include_router(product_router)
 router.include_router(auth_router)
 router.include_router(transactions_router)
-
-@router.get("/")
-async def read_root():
-    return {"message": "Hello, root routes"}

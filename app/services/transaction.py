@@ -58,8 +58,15 @@ def get_transaction_detail_by_id_transaction(db: Session, transaction_id: int):
     # Define the raw SQL query
     sql = text("""
         SELECT
-            *
+            transaction_details.transaction_detail_id,
+            transaction_details.transaction_detail_transaction,
+            transaction_details.transaction_detail_product,
+            transaction_details.transaction_detail_quantity,
+            transaction_details.transaction_detail_price,
+            transaction_details.transaction_detail_subtotal,
+            products.product_name as transaction_product_name
         FROM transaction_details
+        INNER JOIN products ON transaction_details.transaction_detail_product = products.product_id
         WHERE transaction_detail_transaction = :transaction_id
     """)
 
@@ -75,7 +82,8 @@ def get_transaction_detail_by_id_transaction(db: Session, transaction_id: int):
                 transaction_detail_product=row.transaction_detail_product,
                 transaction_detail_quantity=row.transaction_detail_quantity,
                 transaction_detail_price=row.transaction_detail_price,
-                transaction_detail_subtotal=row.transaction_detail_subtotal
+                transaction_detail_subtotal=row.transaction_detail_subtotal,
+                transaction_product_name=row.transaction_product_name
             )
             for row in transaction_details
         ]

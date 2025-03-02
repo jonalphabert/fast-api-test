@@ -13,6 +13,7 @@ class TransactionDetailSchema(BaseModel):
     transaction_detail_quantity     : int
     transaction_detail_price        : float
     transaction_detail_subtotal     : float
+    transaction_product_name        : str
 
 class TransactionAndDetailSchema(BaseModel):
     transaction_info                : TransactionSchema

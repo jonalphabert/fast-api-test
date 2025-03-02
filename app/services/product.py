@@ -26,7 +26,6 @@ def get_product(db: Session):
     return products_dict
 
 def get_product_by_id(db: Session, product_id: int):
-    # Define the raw SQL query
     sql = text("""
         SELECT 
             *
@@ -34,14 +33,11 @@ def get_product_by_id(db: Session, product_id: int):
         WHERE product_id = :product_id
     """)
 
-    # Execute the query with parameters
-    result = db.execute(sql, {"product_id": product_id})  # Fix: Pass a dictionary
+    result = db.execute(sql, {"product_id": product_id})
 
-    # Fetch the first (and only) result
     product = result.fetchone()
 
     if product:
-        # Convert the result into a dictionary
         return ProductSchema(
             product_id=product.product_id,
             product_barcode=product.product_barcode,
@@ -49,4 +45,16 @@ def get_product_by_id(db: Session, product_id: int):
             product_price=product.product_price,
             product_quantity=product.product_quantity
         )
-    return None  # Return None if no product is found
+    return None
+
+def update_stock(db: Session, product_id: int, amount):
+    sql = text("""
+        UPDATE
+            products
+        SET
+            product_quantity = product_quantity - :amount
+        WHERE
+            product_id = :product_id
+    """)
+
+    result = db.execute(sql, {"product_id": product_id})
