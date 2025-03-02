@@ -49,10 +49,77 @@ def create_dummy_products():
     db.commit()
     print("Added 15 dummy products (2 out of stock).")
 
+def create_dummy_transactions():
+    # Fetch users and products from the database
+    users = db.query(User).all()
+    products = db.query(Product).all()
+
+    if not users or not products:
+        print("No users or products found. Please populate users and products first.")
+        return
+
+    # Create dummy transactions
+    transactions = [
+        Transaction(transaction_operator=users[0].user_id),  # John Doe as operator
+        Transaction(transaction_operator=users[1].user_id),  # Jane Smith as operator
+    ]
+    db.add_all(transactions)
+    db.commit()
+    print("Added 2 dummy transactions.")
+
+    return transactions
+
+# Add dummy transaction details
+def create_dummy_transaction_details():
+    # Fetch transactions and products from the database
+    transactions = db.query(Transaction).all()
+    products = db.query(Product).all()
+
+    if not transactions or not products:
+        print("No transactions or products found. Please populate transactions and products first.")
+        return
+
+    # Create dummy transaction details
+    transaction_details = [
+        TransactionDetail(
+            transaction_detail_transaction=transactions[0].transaction_id,
+            transaction_detail_product=products[0].product_id,  # iPhone 15 Pro
+            transaction_detail_quantity=2,
+            transaction_detail_price=products[0].product_price,
+            transaction_detail_subtotal=2 * products[0].product_price,
+        ),
+        TransactionDetail(
+            transaction_detail_transaction=transactions[0].transaction_id,
+            transaction_detail_product=products[1].product_id,  # Samsung Galaxy S23 Ultra
+            transaction_detail_quantity=1,
+            transaction_detail_price=products[1].product_price,
+            transaction_detail_subtotal=1 * products[1].product_price,
+        ),
+        TransactionDetail(
+            transaction_detail_transaction=transactions[1].transaction_id,
+            transaction_detail_product=products[2].product_id,  # Google Pixel 8 Pro
+            transaction_detail_quantity=3,
+            transaction_detail_price=products[2].product_price,
+            transaction_detail_subtotal=3 * products[2].product_price,
+        ),
+        TransactionDetail(
+            transaction_detail_transaction=transactions[1].transaction_id,
+            transaction_detail_product=products[3].product_id,  # MacBook Air M2 (out of stock)
+            transaction_detail_quantity=1,
+            transaction_detail_price=products[3].product_price,
+            transaction_detail_subtotal=1 * products[3].product_price,
+        ),
+    ]
+    db.add_all(transaction_details)
+    db.commit()
+    print("Added 4 dummy transaction details.")
+
 # Main function to populate the database
 def populate_database():
     create_dummy_users()
     create_dummy_products()
+    create_dummy_transactions()
+    create_dummy_transaction_details()
     print("Database populated with dummy data.")
 
 # Run the script

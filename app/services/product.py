@@ -1,5 +1,6 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from app.schemas.product import ProductSchema
 
 def get_product(db: Session):
     sql = text("""
@@ -12,13 +13,13 @@ def get_product(db: Session):
     products = result.fetchall()
 
     products_dict = [
-        {
-            "product_id": row.product_id,
-            "product_barcode": row.product_barcode,
-            "product_name": row.product_name,
-            "product_price": row.product_price,
-            "product_quantity": row.product_quantity
-        }
+        ProductSchema(
+            product_id=row.product_id,
+            product_barcode=row.product_barcode,
+            product_name=row.product_name,
+            product_price=row.product_price,
+            product_quantity=row.product_quantity
+        )
         for row in products
     ]
 
@@ -41,11 +42,11 @@ def get_product_by_id(db: Session, product_id: int):
 
     if product:
         # Convert the result into a dictionary
-        return {
-            "product_id": product.product_id,
-            "product_barcode": product.product_barcode,
-            "product_name": product.product_name,
-            "product_price": product.product_price,
-            "product_quantity": product.product_quantity
-        }
+        return ProductSchema(
+            product_id=product.product_id,
+            product_barcode=product.product_barcode,
+            product_name=product.product_name,
+            product_price=product.product_price,
+            product_quantity=product.product_quantity
+        )
     return None  # Return None if no product is found
