@@ -13,3 +13,7 @@ class TransactionDetailSchema(BaseModel):
     transaction_detail_quantity     : int
     transaction_detail_price        : float
     transaction_detail_subtotal     : float
+
+class TransactionAndDetailSchema(BaseModel):
+    transaction_info                : TransactionSchema
+    transaction_details             : list[TransactionDetailSchema]

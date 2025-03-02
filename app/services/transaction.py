@@ -29,6 +29,32 @@ def get_transaction(db: Session):
     return transaction_dict
 
 def get_transaction_by_id(db: Session, transaction_id: int):
+    sql = text("""
+        SELECT 
+            transactions.transaction_id, 
+            transactions.transaction_date, 
+            transactions.transaction_operator, 
+            users.name
+        FROM transactions
+        INNER JOIN users ON transactions.transaction_operator = users.user_id
+        WHERE transactions.transaction_id = :transaction_id
+    """)
+
+    result = db.execute(sql, {"transaction_id": transaction_id})
+    transaction = result.fetchone()
+
+    if transaction:
+        transaction_result = TransactionSchema(
+            transaction_id= transaction.transaction_id,
+            transaction_date= transaction.transaction_date,
+            transaction_operator= transaction.transaction_operator,
+            user_name= transaction.name,
+        )
+        return transaction_result
+
+    return None
+
+def get_transaction_detail_by_id_transaction(db: Session, transaction_id: int):
     # Define the raw SQL query
     sql = text("""
         SELECT
@@ -41,7 +67,7 @@ def get_transaction_by_id(db: Session, transaction_id: int):
 
     transaction_details = result.fetchall()
 
-    if transactions:
+    if transaction_details:
         transaction_details_dict = [
             TransactionDetailSchema(
                 transaction_detail_id=row.transaction_detail_id,
@@ -51,7 +77,7 @@ def get_transaction_by_id(db: Session, transaction_id: int):
                 transaction_detail_price=row.transaction_detail_price,
                 transaction_detail_subtotal=row.transaction_detail_subtotal
             )
-            for row in transactions
+            for row in transaction_details
         ]
         return transaction_details_dict
         
