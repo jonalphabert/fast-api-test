@@ -3,6 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from app.databases import Base
 from app.models import User, Product, Transaction, TransactionDetail
 
+from app.utils.hashlib import hash_password
+
 # Database URL (SQLite in this case)
 SQLALCHEMY_DATABASE_URL = "sqlite:///./cashier-app.db"
 
@@ -19,8 +21,8 @@ db = SessionLocal()
 # Add dummy users
 def create_dummy_users():
     users = [
-        User(name="John Doe", email="john.doe@example.com", password="password123"),
-        User(name="Jane Smith", email="jane.smith@example.com", password="password456"),
+        User(name="John Doe", email="john.doe@example.com", password=hash_password("password123")),
+        User(name="Jane Smith", email="jane.smith@example.com", password=hash_password("password456")),
     ]
     db.add_all(users)
     db.commit()
