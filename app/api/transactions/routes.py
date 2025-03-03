@@ -27,6 +27,7 @@ async def read_transaction(transaction_id: int, db: Session = Depends(get_db)) -
 @router.post("/transactions", dependencies=[Depends(get_current_user)])
 async def create_transaction(transaction: TransactionNewRecordSchema, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
+        print(current_user["user_id"])
         new_transaction = create_transaction_data(db, current_user["user_id"])
         transaction_detail = create_transaction_detail(db, transaction.transaction_details, new_transaction.transaction_id)
         return {"success": True}

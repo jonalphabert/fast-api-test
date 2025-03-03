@@ -115,14 +115,14 @@ def create_transaction_detail(db: Session, transaction_details: list, id_transac
 
     try:
         for transaction_detail in transaction_details:
-            check_and_update_stock(db, transaction_detail.product, transaction_detail.quantity)
+            check_and_update_stock(db, transaction_detail.product_id, transaction_detail.quantity_transaction)
 
             new_transaction_detail = TransactionDetail(
                 transaction_detail_transaction=id_transaction,
-                transaction_detail_product=transaction_detail.product,
-                transaction_detail_quantity=transaction_detail.quantity,
-                transaction_detail_price=transaction_detail.price,
-                transaction_detail_subtotal=transaction_detail.quantity * transaction_detail.price
+                transaction_detail_product=transaction_detail.product_id,
+                transaction_detail_quantity=transaction_detail.quantity_transaction,
+                transaction_detail_price=transaction_detail.product_price,
+                transaction_detail_subtotal=transaction_detail.quantity_transaction * transaction_detail.product_price
             )
             db_transaction_detail.append(new_transaction_detail)
 

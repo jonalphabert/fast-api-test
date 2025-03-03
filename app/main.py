@@ -3,10 +3,18 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.openapi.utils import get_openapi
 from app.api.routes import router as api_router
 from app.utils.jwtGenerator import verify_access_token
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-app = FastAPI()
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5000"],  # Replace with your frontend's origin
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 # OAuth2 scheme for JWT authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")

@@ -16,9 +16,9 @@ class TransactionDetailSchema(BaseModel):
     transaction_product_name        : str
 
 class TransactionDetailRequestSchema(BaseModel):
-    product      : int
-    quantity     : int
-    price        : float
+    product_id                  : int
+    quantity_transaction        : int
+    product_price               : float
     
 class TransactionAndDetailSchema(BaseModel):
     transaction_info                : TransactionSchema
