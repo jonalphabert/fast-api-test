@@ -1,5 +1,6 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from app.schemas.transaction import TransactionSchema, TransactionDetailSchema
 from app.models import Transaction, TransactionDetail
 
@@ -56,7 +57,6 @@ def get_transaction_by_id(db: Session, transaction_id: int):
     return None
 
 def get_transaction_detail_by_id_transaction(db: Session, transaction_id: int):
-    # Define the raw SQL query
     sql = text("""
         SELECT
             transaction_details.transaction_detail_id,
@@ -90,35 +90,51 @@ def get_transaction_detail_by_id_transaction(db: Session, transaction_id: int):
         ]
         return transaction_details_dict
         
-    return None  # Return None if no transactions is found
+    return None
 
 
 def create_transaction_data(db: Session, user: int):
-    db_transaction = Transaction(
-        transaction_operator=user
-    )
-    db.add(db_transaction)
-    db.commit()
-    db.refresh(db_transaction)
-    return db_transaction
+    try:
+        db_transaction = Transaction(
+            transaction_operator=user
+        )
+        db.add(db_transaction)
+        db.commit()
+        db.refresh(db_transaction)
+        return db_transaction
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create transaction")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 def create_transaction_detail(db: Session, transaction_details: list, id_transaction: int):
     db_transaction_detail = []
-    for transaction_detail in transaction_details:
-        # Create a new TransactionDetail object
-        new_transaction_detail = TransactionDetail(
-            transaction_detail_transaction=id_transaction,
-            transaction_detail_product=transaction_detail.product,
-            transaction_detail_quantity=transaction_detail.quantity,
-            transaction_detail_price=transaction_detail.price,
-            transaction_detail_subtotal=transaction_detail.quantity * transaction_detail.price
-        )
-        # Append the new object to the list
-        db_transaction_detail.append(new_transaction_detail)
 
-    # Add all objects to the session
-    db.add_all(db_transaction_detail)
-    db.commit()
+    try:
+        for transaction_detail in transaction_details:
+            check_and_update_stock(db, transaction_detail.product, transaction_detail.quantity)
 
-    # Return the list of created TransactionDetail objects
+            new_transaction_detail = TransactionDetail(
+                transaction_detail_transaction=id_transaction,
+                transaction_detail_product=transaction_detail.product,
+                transaction_detail_quantity=transaction_detail.quantity,
+                transaction_detail_price=transaction_detail.price,
+                transaction_detail_subtotal=transaction_detail.quantity * transaction_detail.price
+            )
+            db_transaction_detail.append(new_transaction_detail)
+
+        db.add_all(db_transaction_detail)
+        db.commit()
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create transaction details")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
     return db_transaction_detail

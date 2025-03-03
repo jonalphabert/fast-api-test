@@ -25,6 +25,11 @@ async def read_transaction(transaction_id: int, db: Session = Depends(get_db)) -
 
 @router.post("/transactions")
 async def create_transaction(transaction: TransactionNewRecordSchema, db: Session = Depends(get_db)):
-    new_transaction = create_transaction_data(db, 1)
-    transaction_detail = create_transaction_detail(db, transaction.transaction_details, new_transaction.transaction_id)
-    return {"success": True}
+    try:
+        new_transaction = create_transaction_data(db, 1)
+        transaction_detail = create_transaction_detail(db, transaction.transaction_details, new_transaction.transaction_id)
+        return {"success": True}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")

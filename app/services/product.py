@@ -1,6 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.schemas.product import ProductSchema
+from sqlalchemy.exc import SQLAlchemyError
 
 def get_product(db: Session):
     sql = text("""
@@ -47,14 +48,19 @@ def get_product_by_id(db: Session, product_id: int):
         )
     return None
 
-def update_stock(db: Session, product_id: int, amount):
-    sql = text("""
-        UPDATE
-            products
-        SET
-            product_quantity = product_quantity - :amount
-        WHERE
-            product_id = :product_id
-    """)
+def check_and_update_stock(db: Session, product_id: int, quantity: int):
+    try:
+        product = db.query(Product).filter(Product.product_id == product_id).with_for_update().one()
 
-    result = db.execute(sql, {"product_id": product_id})
+        if product.product_quantity < quantity:
+            raise ValueError(f"Insufficient stock for product {product_id}")
+
+        product.product_quantity -= quantity
+
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update product stock")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
