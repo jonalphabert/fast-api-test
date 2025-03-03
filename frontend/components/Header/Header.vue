@@ -5,7 +5,19 @@
       <div class="flex gap-6">
         <nuxt-link to="/cashier">Cashier</nuxt-link>
         <nuxt-link to="/cashier/transaction">Transaction</nuxt-link>
+        <div class="cursor-pointer" @click="logout">Logout</div>
       </div>
     </div>
   </nav>
 </template>
+
+<script setup>
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const logout = () => {
+  localStorage.removeItem("token");
+  router.push("/");
+};
+</script>
