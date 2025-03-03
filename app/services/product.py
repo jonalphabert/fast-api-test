@@ -50,12 +50,26 @@ def get_product_by_id(db: Session, product_id: int):
 
 def check_and_update_stock(db: Session, product_id: int, quantity: int):
     try:
-        product = db.query(Product).filter(Product.product_id == product_id).with_for_update().one()
+        sql = text("""
+            SELECT 
+                *
+            FROM products
+            WHERE product_id = :product_id
+        """)
+
+        result = db.execute(sql, {"product_id": product_id})
+
+        product = result.fetchone()
 
         if product.product_quantity < quantity:
             raise ValueError(f"Insufficient stock for product {product_id}")
 
-        product.product_quantity -= quantity
+        sqlUpdate = text("""
+            UPDATE products
+            SET product_quantity = product_quantity - :quantity
+            WHERE product_id = :product_id
+        """)
+        resultUpdate = db.execute(sqlUpdate, {"product_id": product_id, "quantity": quantity})
 
         db.commit()
     except SQLAlchemyError as e:

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from app.schemas.transaction import TransactionSchema, TransactionDetailSchema
 from app.models import Transaction, TransactionDetail
+from app.services.product import check_and_update_stock
 
 def get_transaction(db: Session):
     sql = text("""
